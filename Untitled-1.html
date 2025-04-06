@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Car Lovers</title>
+    <link rel="stylesheet" href="pagina.css">
+</head>
+  
+<body>
+    <body>
+        <div class="container">
+          <!-- Coluna da Imagem -->
+          <section class="banner">
+            <img src="1m.jpg" alt="Imagem de uma BMW">
+          </section>
+      
+          <!-- Coluna do Conteúdo -->
+          <section class="conteudo">
+            <header>
+              <h1>CAR LOVERS</h1>
+            </header>
+      
+            <div class="texto">
+              <h2>Bem-vindo à comunidade Car Lovers!</h2>
+              <p>O intuito desta página é a interação entre entusiastas de carros...</p>
+              <!-- formulário, vídeos etc. -->
+            </div>
+          </section>
+        </div>     
+
+        <section class="comentarios">
+            <h2>Deixe seu comentário</h2>
+            <form id="form-comentario">
+              <input type="text" id="nome" placeholder="Seu nome" required>
+              <textarea id="mensagem" placeholder="Seu comentário..." required></textarea>
+              <button type="submit">Enviar</button>
+            </form>
+            <div id="lista-comentarios">
+              <!-- Comentários aparecem aqui -->
+            </div>
+          </section>
+          
+      
+        <h3>Faça seu cadastro e entre para a comunidade.</h3>
+    </section>
+
+    <section class="formulario">
+        <form method="post" action="recebe.php">
+            <button type="submit">🚗 Enviar</button>
+            <fieldset>
+                <legend>Dados Pessoais:</legend>
+                Nome: <input type="text" name="nome" required placeholder="Nome completo"><br><br>
+                E-mail: <input type="email" name="email" required placeholder="Digite seu email"><br><br>
+                Repita o E-mail: <input type="email" name="email2" placeholder="Repita seu email"><br><br>
+                Senha: <input type="password" name="senha" required placeholder="Até 6 caracteres"><br><br>
+                Repita a senha: <input type="password" name="senha2"><br><br>
+                Data de nascimento: <input type="date" name="nascimento"><br><br>
+                Estado: 
+                <select name="estado">
+                    <option value="">Selecione</option>
+                    <option value="SP">SP</option>
+                    <option value="MT">MT</option>
+                    <option value="MS">MS</option>
+                    <option value="PA">PA</option>
+                    <option value="RJ">RJ</option>
+                    <option value="ES">ES</option>
+                    <option value="MA">MA</option>
+                    <option value="PE">PE</option>
+                    <option value="SC">SC</option>
+                    <option value="PR">PR</option>
+                    <option value="RS">RS</option>
+                </select>
+            </fieldset>
+        </form>
+        <section class="galeria">
+            <h2>Galeria de Carros</h2>
+            <div class="grid-galeria">
+              <div class="item-galeria">
+                <img src="fotos-do-bmw-m4-f4nqi6xjpni7ls9r.jpg" alt="BMW M4">
+                <p>BMW M4</p>
+              </div>
+              <div class="item-galeria">
+                <img src="gtr-R35-1611859266238-4b98091d9d9b.jpg" alt="Nissan GT-R">
+                <p>Nissan GT-R</p>
+              </div>
+              <div class="item-galeria">
+                <img src="SUPRA MK4.jpg" alt="Toyota Supra">
+                <p>Toyota Supra</p>
+              </div>
+            </div>
+          </section>
+          
+    </section>
+
+    <section class="videos">
+        <h4>Assista nossos vídeos</h4>
+        <video src="GTRXAUDI.mp4" width="300" controls></video>
+        <video src="BMW LAUNCH.mp4" width="300" controls></video>
+    </section>
+    <script>
+        const form = document.getElementById("form-comentario");
+        const lista = document.getElementById("lista-comentarios");
+      
+        // Carrega os comentários salvos ao abrir a página
+        document.addEventListener("DOMContentLoaded", () => {
+          const comentariosSalvos = JSON.parse(localStorage.getItem("comentarios")) || [];
+          comentariosSalvos.forEach(comentario => {
+            adicionarComentario(comentario.nome, comentario.mensagem, comentario.curtidas);
+          });
+        });
+      
+        // Evento de envio do formulário
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const nome = document.getElementById("nome").value;
+          const mensagem = document.getElementById("mensagem").value;
+      
+          adicionarComentario(nome, mensagem, 0);
+          salvarComentario(nome, mensagem, 0);
+          form.reset();
+        });
+      
+        function adicionarComentario(nome, mensagem, curtidas = 0) {
+          const novoComentario = document.createElement("div");
+          novoComentario.classList.add("comentario");
+      
+          novoComentario.innerHTML = `
+            <strong>${nome}</strong>
+            <p>${mensagem}</p>
+            <button class="curtir" data-nome="${nome}" data-msg="${mensagem}">
+              👍 Curtir (<span>${curtidas}</span>)
+            </button>
+          `;
+      
+          lista.prepend(novoComentario);
+      
+          // Lidar com clique no botão de curtir
+          const botaoCurtir = novoComentario.querySelector(".curtir");
+          botaoCurtir.addEventListener("click", function () {
+            const span = this.querySelector("span");
+            let num = parseInt(span.textContent);
+            num++;
+            span.textContent = num;
+      
+            atualizarCurtidas(this.dataset.nome, this.dataset.msg, num);
+          });
+        }
+      
+        function salvarComentario(nome, mensagem, curtidas) {
+          const comentariosSalvos = JSON.parse(localStorage.getItem("comentarios")) || [];
+          comentariosSalvos.unshift({ nome, mensagem, curtidas });
+          localStorage.setItem("comentarios", JSON.stringify(comentariosSalvos));
+        }
+      
+        function atualizarCurtidas(nome, mensagem, curtidas) {
+          let comentariosSalvos = JSON.parse(localStorage.getItem("comentarios")) || [];
+          comentariosSalvos = comentariosSalvos.map(c => {
+            if (c.nome === nome && c.mensagem === mensagem) {
+              return { ...c, curtidas };
+            }
+            return c;
+          });
+          localStorage.setItem("comentarios", JSON.stringify(comentariosSalvos));
+        }
+      </script>
+      
+</body>
+<script>
+    const form = document.getElementById("form-comentario");
+    const lista = document.getElementById("lista-comentarios");
+  
+    // Carrega comentários do localStorage ao abrir
+    document.addEventListener("DOMContentLoaded", () => {
+      const comentariosSalvos = JSON.parse(localStorage.getItem("comentarios")) || [];
+      comentariosSalvos.forEach(comentario => {
+        adicionarComentario(comentario.nome, comentario.mensagem);
+      });
+    });
+  
+    // Salva e exibe comentário ao enviar
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const mensagem = document.getElementById("mensagem").value;
+  
+      adicionarComentario(nome, mensagem);
+      salvarComentario(nome, mensagem);
+  
+      form.reset();
+    });
+  
+    function adicionarComentario(nome, mensagem) {
+      const novoComentario = document.createElement("div");
+      novoComentario.classList.add("comentario");
+      novoComentario.innerHTML = `<strong>${nome}</strong><p>${mensagem}</p>`;
+      lista.prepend(novoComentario);
+    }
+  
+    function salvarComentario(nome, mensagem) {
+      const comentariosSalvos = JSON.parse(localStorage.getItem("comentarios")) || [];
+      comentariosSalvos.unshift({ nome, mensagem });
+      localStorage.setItem("comentarios", JSON.stringify(comentariosSalvos));
+    }
+  </script>
+  
+</html>
